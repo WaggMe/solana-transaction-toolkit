@@ -1,9 +1,8 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL, TransactionInstruction, TransactionMessage, ComputeBudgetProgram } from '@solana/web3.js';
-import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createTransferInstruction, TOKEN_PROGRAM_ID, getMint } from '@solana/spl-token';
+import { getAssociatedTokenAddress, getMint } from '@solana/spl-token';
 import { Buffer } from 'buffer';
 import * as squads from '@sqds/multisig';
 import Image from 'next/image';
@@ -71,8 +70,6 @@ const CreateTab = () => {
     const [transactionType, setTransactionType] = useState<TransactionType>('sendSol');
     const [destinationAddress, setDestinationAddress] = useState<string>('');
     const [solAmount, setSolAmount] = useState<string>('');
-    const [splTokenAddress, setSplTokenAddress] = useState<string>('');
-    const [splTokenAmount, setSplTokenAmount] = useState<string>('');
     const [swapFromToken, setSwapFromToken] = useState<string>('');
     const [swapToToken, setSwapToToken] = useState<string>('');
     const [swapAmount, setSwapAmount] = useState<string>('');
@@ -257,9 +254,10 @@ const CreateTab = () => {
             setGeneratedTx(base64Transaction);
             console.log('Generated Transaction (Base64):', base64Transaction);
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error generating transaction:", err);
-            setError(`Error: ${err.message}`);
+            const message = err instanceof Error ? err.message : 'An unknown error occurred';
+            setError(`Error: ${message}`);
         }
     };
 

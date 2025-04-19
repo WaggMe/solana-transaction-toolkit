@@ -12,8 +12,8 @@ import {
 // import { clusterApiUrl } from '@solana/web3.js'; 
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 
-// Default styles that can be overridden by your app
-require('@solana/wallet-adapter-react-ui/styles.css');
+// Change require to import for CSS
+import '@solana/wallet-adapter-react-ui/styles.css';
 
 const HELIUS_RPC_URL = 'https://elwira-tp4ejq-fast-mainnet.helius-rpc.com/';
 

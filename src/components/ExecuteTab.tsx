@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { Connection, Transaction, Message, PublicKey } from '@solana/web3.js';
+import { Connection, Transaction, Message } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 
 const HELIUS_RPC_URL = 'https://elwira-tp4ejq-fast-mainnet.helius-rpc.com/';
@@ -25,8 +25,7 @@ const styles = {
 };
 
 const ExecuteTab = () => {
-    const { connection } = useConnection();
-    const { publicKey, signTransaction, sendTransaction } = useWallet();
+    const { publicKey, sendTransaction } = useWallet();
 
     const [base64Transaction, setBase64Transaction] = useState<string>('');
     const [customRpc, setCustomRpc] = useState<string>('');
@@ -94,9 +93,10 @@ const ExecuteTab = () => {
                 txSignature = await sendTransaction(legacyTx, connectionToSend);
                 console.log("Sent legacy transaction, signature:", txSignature);
 
-            } catch (legacyError: any) {
+            } catch (legacyError: unknown) {
                 console.error("Failed during legacy transaction processing:", legacyError);
-                throw new Error('Failed to decode transaction message. Ensure it is a valid base64 legacy transaction message.');
+                const message = legacyError instanceof Error ? legacyError.message : 'Unknown processing error';
+                throw new Error(`Failed to decode/process message: ${message}`);
             }
 
             setStatus('Transaction sent. Confirming...'); console.log("Status set to: Transaction sent. Confirming...");
@@ -115,9 +115,10 @@ const ExecuteTab = () => {
             setStatus(`Transaction Confirmed: ${txSignature}`); console.log(`Status set to: Transaction Confirmed: ${txSignature}`);
             console.log('Transaction Confirmed successfully');
 
-        } catch (err: any) {
+        } catch (err: unknown) {
              console.error('Execution Error (outer catch block):', err);
-            setError(`Error: ${err.message || 'Unknown error'}`); console.log(`Error set to: ${err.message || 'Unknown error'}`);
+             const message = err instanceof Error ? err.message : 'Unknown error';
+            setError(`Error: ${message}`); console.log(`Error set to: ${message}`);
             setStatus('Failed'); console.log("Status set to: Failed");
         }
     };
@@ -204,7 +205,7 @@ const ExecuteTab = () => {
                     )}
                     {error && (
                         <div className={styles.errorClasses} role="alert">
-                            {error}
+                            {error.replace(/'/g, "&apos;")}
                         </div>
                     )}
                 </div>
