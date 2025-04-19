@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL, TransactionInstruction, TransactionMessage, ComputeBudgetProgram } from '@solana/web3.js';
-import { getAssociatedTokenAddress, getMint } from '@solana/spl-token';
+import { getAssociatedTokenAddress, getMint, createAssociatedTokenAccountInstruction, createTransferInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Buffer } from 'buffer';
 import * as squads from '@sqds/multisig';
 import Image from 'next/image';
@@ -79,13 +79,11 @@ const CreateTab = () => {
     const [tokenMap, setTokenMap] = useState<Map<string, JupiterToken>>(new Map());
     const [fromTokenInfo, setFromTokenInfo] = useState<TokenInfo | null>(null);
     const [toTokenInfo, setToTokenInfo] = useState<TokenInfo | null>(null);
-    const [isTokenListLoading, setIsTokenListLoading] = useState<boolean>(true);
     const [isFromLoading, setIsFromLoading] = useState<boolean>(false);
     const [isToLoading, setIsToLoading] = useState<boolean>(false);
 
     // Keep useEffect, findTokenInfo, blur handlers, add/remove signer handlers
     useEffect(() => {
-        setIsTokenListLoading(true);
         fetch('https://token.jup.ag/strict')
             .then(res => res.json())
             .then((tokens: JupiterToken[]) => {
@@ -94,8 +92,7 @@ const CreateTab = () => {
                 setTokenMap(map);
                 console.log(`Loaded ${map.size} tokens from Jupiter Token List.`);
             })
-            .catch(err => console.error("Failed to fetch Jupiter token list:", err))
-            .finally(() => setIsTokenListLoading(false));
+            .catch(err => console.error("Failed to fetch Jupiter token list:", err));
     }, []);
 
     const findTokenInfo = useCallback((mintAddress: string): TokenInfo | null => {
@@ -146,17 +143,17 @@ const CreateTab = () => {
         try {
             const firstSignerInput = signers[0]?.trim(); if (!firstSignerInput) throw new Error('Signer/Multisig address is required.');
             const payerAddress = payer.trim() || firstSignerInput; 
-            let feePayerPubkey: PublicKey; try { feePayerPubkey = new PublicKey(payerAddress); } catch (e) { throw new Error('Invalid Payer address.'); }
+            let feePayerPubkey: PublicKey; try { feePayerPubkey = new PublicKey(payerAddress); } catch (_) { throw new Error('Invalid Payer address.'); }
 
             let finalTransaction: Transaction | null = null;
-            let instructionsToInclude: TransactionInstruction[] = []; 
+            const instructionsToInclude: TransactionInstruction[] = []; 
 
             let computeUnitLimit = DEFAULT_COMPUTE_UNITS;
             if (transactionType === 'sendSol' && walletType === 'single') { computeUnitLimit = SOL_TRANSFER_COMPUTE_UNITS; }
             else if (transactionType === 'jupiterSwap') { computeUnitLimit = JUPITER_SWAP_COMPUTE_UNITS; } 
 
             const priorityFeeLamports = Math.round((parseFloat(priorityFeeSol) || 0) * LAMPORTS_PER_SOL);
-            let computeBudgetInstructions: TransactionInstruction[] = [];
+            const computeBudgetInstructions: TransactionInstruction[] = [];
             if (priorityFeeLamports > 0) {
                 computeBudgetInstructions.push( ComputeBudgetProgram.setComputeUnitLimit({ units: computeUnitLimit }) );
                 const microLamports = Math.floor((priorityFeeLamports * 1_000_000) / computeUnitLimit);
@@ -164,11 +161,11 @@ const CreateTab = () => {
             }
 
             if (walletType === 'single') {
-                let userPublicKey: PublicKey; try { userPublicKey = new PublicKey(firstSignerInput); } catch (e) { throw new Error('Invalid Signer address.'); }
+                let userPublicKey: PublicKey; try { userPublicKey = new PublicKey(firstSignerInput); } catch (_) { throw new Error('Invalid Signer address.'); }
                 
                 if (transactionType === 'sendSol') {
                     if (!destinationAddress.trim()) throw new Error('Destination address required.');
-                    let toPubkey: PublicKey; try { toPubkey = new PublicKey(destinationAddress.trim()); } catch (e) { throw new Error('Invalid Destination address.'); }
+                    let toPubkey: PublicKey; try { toPubkey = new PublicKey(destinationAddress.trim()); } catch (_) { throw new Error('Invalid Destination address.'); }
                     const amountSOL = parseFloat(solAmount); if (isNaN(amountSOL) || amountSOL <= 0) throw new Error('Invalid SOL amount.');
                     instructionsToInclude.push(SystemProgram.transfer({ fromPubkey: userPublicKey, toPubkey: toPubkey, lamports: amountSOL * LAMPORTS_PER_SOL }));
                 } else if (transactionType === 'sendSpl') {
@@ -198,14 +195,14 @@ const CreateTab = () => {
                 finalTransaction = new Transaction({ recentBlockhash: blockhash, feePayer: feePayerPubkey }).add(...computeBudgetInstructions).add(...instructionsToInclude);
 
             } else if (walletType === 'squadsv4') {
-                 let multisigPda: PublicKey; try { multisigPda = new PublicKey(firstSignerInput); } catch (e) { throw new Error('Invalid Squads v4 address.'); }
+                 let multisigPda: PublicKey; try { multisigPda = new PublicKey(firstSignerInput); } catch (_) { throw new Error('Invalid Squads v4 address.'); }
                  const vaultIndex = 0;
                  const [vaultPda] = squads.getVaultPda({ multisigPda, index: vaultIndex });
-                 let innerInstructions: TransactionInstruction[] = [...computeBudgetInstructions]; // Add fee to inner tx
+                 const innerInstructions: TransactionInstruction[] = [...computeBudgetInstructions]; // Add fee to inner tx
 
                 if (transactionType === 'sendSol') {
                      if (!destinationAddress.trim()) throw new Error('Destination address required.');
-                     let toPubkey: PublicKey; try { toPubkey = new PublicKey(destinationAddress.trim()); } catch (e) { throw new Error('Invalid Destination address.'); }
+                     let toPubkey: PublicKey; try { toPubkey = new PublicKey(destinationAddress.trim()); } catch (_) { throw new Error('Invalid Destination address.'); }
                      const amountSOL = parseFloat(solAmount); if (isNaN(amountSOL) || amountSOL <= 0) throw new Error('Invalid SOL amount.');
                      innerInstructions.push(SystemProgram.transfer({ fromPubkey: vaultPda, toPubkey: toPubkey, lamports: amountSOL * LAMPORTS_PER_SOL }));
                 } else if (transactionType === 'sendSpl') {
