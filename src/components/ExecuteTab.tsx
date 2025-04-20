@@ -22,6 +22,7 @@ const styles = {
     statusHeadingText: 'text-gray-800 dark:text-gray-200',
     statusText: 'text-gray-700 dark:text-gray-300',
     errorClasses: "mt-2 p-3 text-sm border rounded-md text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40 border-red-300 dark:border-red-700",
+    infoBoxCode: 'bg-teal-100 dark:bg-teal-700/50 p-0.5 rounded',
 };
 
 const ExecuteTab = () => {
@@ -38,7 +39,7 @@ const ExecuteTab = () => {
             try {
                 new URL(customRpc.trim());
                 return customRpc.trim();
-            } catch (_) {
+            } catch (err) {
                 return HELIUS_RPC_URL;
             }
         }
@@ -135,16 +136,16 @@ const ExecuteTab = () => {
             <div className="p-4 border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/30 rounded-md text-sm text-teal-700 dark:text-teal-300">
                 <h3 className="font-semibold mb-2">Where to find a Base64 Transaction Message:</h3>
                 <ul className="list-disc list-outside pl-5 space-y-1 text-xs">
-                    <li>Generate one using the 'Create' tab in this toolkit.</li>
+                    <li>{`Generate one using the 'Create' tab in this toolkit.`}</li>
                     <li>Enable developer options in wallets (Phantom, Solflare) to view before signing on other sites.</li>
-                    <li>Use the <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded text-xs font-mono">--dump-transaction-message</code> flag with the Solana CLI.</li>
+                    <li>Use the <code className={`px-1 rounded text-xs font-mono ${styles.infoBoxCode}`}>--dump-transaction-message</code> flag with the Solana CLI.</li>
                      <li>
-                        In Rust: Add <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded text-xs font-mono">base64 = "0.21"</code> to dependencies and use 
-                        <code className="block bg-gray-200 dark:bg-gray-700 p-1 rounded text-xs font-mono mt-1 overflow-x-auto">println!("", base64::encode(&transaction.message_data()));</code>
+                        In Rust: Add <code className={`px-1 rounded text-xs font-mono ${styles.infoBoxCode}`}>base64 = &quot;0.21&quot;</code> to dependencies and use 
+                        <code className={`block p-1 rounded text-xs font-mono mt-1 overflow-x-auto ${styles.infoBoxCode}`}>println!(&quot;&quot;, base64::encode(&amp;transaction.message_data()));</code>
                      </li>
                      <li>
                         In JavaScript/TypeScript: Use 
-                        <code className="block bg-gray-200 dark:bg-gray-700 p-1 rounded text-xs font-mono mt-1 overflow-x-auto">console.log(tx.serializeMessage().toString("base64"));</code>
+                        <code className={`block p-1 rounded text-xs font-mono mt-1 overflow-x-auto ${styles.infoBoxCode}`}>console.log(tx.serializeMessage().toString(&quot;base64&quot;));</code>
                      </li>
                 </ul>
             </div>

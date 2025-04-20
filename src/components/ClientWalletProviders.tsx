@@ -11,7 +11,8 @@ import {
 // Remove clusterApiUrl import if no longer needed elsewhere
 // import { clusterApiUrl } from '@solana/web3.js'; 
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { Network } from '@solana/wallet-adapter-base';
+// Removed Network import
+// import { Network } from '@solana/wallet-adapter-base'; 
 
 // Change require to import for CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -22,14 +23,14 @@ export function ClientWalletProviders({ children }: { children: React.ReactNode 
     // Determine endpoint - use environment variable or default to Helius RPC
     const endpoint = process.env.NEXT_PUBLIC_RPC_URL || HELIUS_RPC_URL;
 
-    // Network is less relevant when using a specific RPC URL, but keep for wallet adapter if needed
-    const network = (process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'mainnet-beta') as Network;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const network = (process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'mainnet-beta') as any;
 
     const wallets = useMemo(
         () => [
             new PhantomWalletAdapter(),
             // Pass network to Solflare if it requires it
-            new SolflareWalletAdapter({ network }), 
+            new SolflareWalletAdapter({ network }),
         ],
         [network]
     );
