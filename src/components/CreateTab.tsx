@@ -11,8 +11,8 @@ import Image from 'next/image';
 type WalletType = 'single' | 'squadsv3' | 'squadsv4' | 'realms';
 type TransactionType = 'sendSol' | 'sendSpl' | 'jupiterSwap';
 
-//@ts-ignore 1 typeError should be ignored for response
-interface QuoteResponse { [key: string]: any; }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface QuoteResponse { [key: string]: any; } // Using any for flexibility with Jupiter API response shape
 interface InstructionInfo { programId: string; accounts: { pubkey: string; isSigner: boolean; isWritable: boolean; }[]; data: string; }
 interface SwapInstructionsResponse { computeBudgetInstructions?: InstructionInfo[]; setupInstructions?: InstructionInfo[]; swapInstruction: InstructionInfo; cleanupInstruction?: InstructionInfo | null; addressLookupTableAddresses?: string[]; error?: string; }
 interface JupiterToken { address: string; chainId: number; decimals: number; name: string; symbol: string; logoURI: string; tags: string[]; }
