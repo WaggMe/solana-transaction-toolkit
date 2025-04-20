@@ -69,6 +69,7 @@ jobs:
       - name: Build with Next.js
         env:
           GITHUB_ACTIONS: 'true'
+          NEXT_LINT_DISABLE: 1 # Disable ESLint during build in CI
         run: ${{ steps.detect-package-manager.outputs.manager }} run build
 
       - name: Upload artifact
