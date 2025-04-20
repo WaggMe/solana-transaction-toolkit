@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import ThemeToggleButton from '@/components/ThemeToggleButton';
 
 // Explicitly use the default export for dynamic imports
 const CreateTab = dynamic(() => import('@/components/CreateTab').then(mod => mod.default), { ssr: false });
@@ -38,7 +37,6 @@ export default function Home() {
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
           Solana Transaction Toolkit
         </h1>
-        <ThemeToggleButton />
       </div>
 
       <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-xl overflow-hidden">
