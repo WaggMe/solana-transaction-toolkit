@@ -40,6 +40,7 @@ const ExecuteTab = () => {
                 new URL(customRpc.trim());
                 return customRpc.trim();
             } catch (err) {
+                console.warn("Invalid custom RPC URL provided, using default:", err instanceof Error ? err.message : String(err));
                 return HELIUS_RPC_URL;
             }
         }
