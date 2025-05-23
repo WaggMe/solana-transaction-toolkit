@@ -385,7 +385,7 @@ const CreateTab = () => {
                      <select id="transactionType" value={transactionType} onChange={(e) => setTransactionType(e.target.value as TransactionType)} className={styles.selectClasses}>
                          <option value="sendSol">Send SOL</option>
                          <option value="sendSpl" disabled>Send SPL Token (In Development)</option>
-                         <option value="jupiterSwap\">Jupiter Swap</option>
+                         <option value="jupiterSwap">Jupiter Swap</option>
                      </select>
                  </div>
                  {renderTransactionFields()}
