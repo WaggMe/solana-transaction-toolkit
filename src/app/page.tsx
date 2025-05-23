@@ -6,11 +6,12 @@ import dynamic from 'next/dynamic';
 // Explicitly use the default export for dynamic imports
 const CreateTab = dynamic(() => import('@/components/CreateTab').then(mod => mod.default), { ssr: false });
 const ExecuteTab = dynamic(() => import('@/components/ExecuteTab').then(mod => mod.default), { ssr: false });
+const ExportTab = dynamic(() => import('@/components/ExportTab').then(mod => mod.default), { ssr: false });
 // InspectTab likely doesn't need dynamic import unless it uses client hooks/APIs
 import InspectTab from '@/components/InspectTab';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'create' | 'inspect' | 'execute'>('create');
+  const [activeTab, setActiveTab] = useState<'create' | 'inspect' | 'execute' | 'export'>('create');
 
   // Memoize tab content to avoid re-rendering on tab switch if not needed
   const tabContent = useMemo(() => {
@@ -21,6 +22,8 @@ export default function Home() {
         return <InspectTab />;
       case 'execute':
         return <ExecuteTab />;
+      case 'export':
+        return <ExportTab />;
       default:
         return null;
     }
@@ -55,10 +58,16 @@ export default function Home() {
             Inspect
           </button>
           <button
-            className={`${commonTabClasses} rounded-tr-lg ${activeTab === 'execute' ? activeTabClasses : inactiveTabClasses}`}
+            className={`${commonTabClasses} ${activeTab === 'execute' ? activeTabClasses : inactiveTabClasses}`}
             onClick={() => setActiveTab('execute')}
           >
             Execute
+          </button>
+          <button
+            className={`${commonTabClasses} rounded-tr-lg ${activeTab === 'export' ? activeTabClasses : inactiveTabClasses}`}
+            onClick={() => setActiveTab('export')}
+          >
+            Export
           </button>
         </div>
 
